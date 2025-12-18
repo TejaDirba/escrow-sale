@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EscrowSale DApp</title>
+  <link rel="stylesheet" href="styles-modern.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>EscrowSale DApp</h1>
+      <p>Decentralized Escrow System on Ethereum</p>
+    </div>
+
+    <div class="wallet-card">
+      <div>
+        <div class="wallet-label">Connected Account</div>
+        <div class="wallet-address" id="account">Not connected</div>
+        <div class="wallet-label" style="margin-top: 12px;">Contract Address</div>
+        <div class="wallet-address" id="contractAddress">-</div>
+      </div>
+      <button class="btn-connect" id="connect">
+        Connect Wallet
+      </button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3><span class="badge"></span> Registration</h3>
+        <button class="btn btn-primary" id="btnRegisterBuyer">Register as Buyer</button>
+        <button class="btn btn-primary" id="btnRegisterCourier">Register as Courier</button>
+      </div>
+
+      <div class="card">
+        <h3><span class="badge" style="background: var(--success)"></span> Fund Purchase</h3>
+        <div class="input-group">
+          <label for="fundAmount">Amount (wei)</label>
+          <input type="text" id="fundAmount" value="1500000000000000" placeholder="Enter amount">
+        </div>
+        <button class="btn btn-success" id="btnFund">Fund Purchase</button>
+      </div>
+
+      <div class="card">
+        <h3><span class="badge" style="background: var(--warning)"></span> Shipping & Delivery</h3>
+        <button class="btn btn-warning" id="btnShip">Mark as Shipped</button>
+        <button class="btn btn-warning" id="btnDelivered">Confirm Delivered</button>
+        <div class="divider"></div>
+        <button class="btn btn-success" id="btnComplete">Complete Sale</button>
+      </div>
+
+      <div class="card state-card">
+        <h3><span class="status-indicator"></span> Current Contract State</h3>
+        <div class="state-value" id="state">Unknown</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

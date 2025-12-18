@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>EscrowSale DApp</title>
+</head>
+<body>
+  <h1>EscrowSale DApp</h1>
+
+  <button id="connect">Connect MetaMask</button>
+  <p id="account">Not connected</p>
+
+  <p>Contract address: <span id="contractAddress"></span></p>
+
+  <h3>Roles</h3>
+  <button id="btnRegisterBuyer">Register Buyer</button>
+  <button id="btnRegisterCourier">Register Courier</button>
+
+  <h3>Fund purchase</h3>
+  <label>
+    Amount (wei):
+    <input id="fundAmount" value="1500000000000000">
+  </label>
+  <button id="btnFund">Fund Purchase</button>
+
+  <h3>Shipment & completion</h3>
+  <button id="btnShip">Mark Shipped</button>
+  <button id="btnDelivered">Confirm Delivered</button>
+  <button id="btnComplete">Complete</button>
+
+  <h3>State</h3>
+  <p>Current state: <span id="state">unknown</span></p>
+
+  <!-- ethers.js v6 UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
