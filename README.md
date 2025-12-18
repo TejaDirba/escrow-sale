@@ -1,98 +1,93 @@
 Šiame darbe sukurta ir ištestuota išmanioji sutartis (smart contract) „EscrowSale“ bei paprasta decentralizuota aplikacija (DApp), veikianti Ethereum testiniame tinkle Sepolia.
 
-Pagrindinis tikslas – pademonstruoti:
+**Pagrindinis tikslas – pademonstruoti**:
 
-*kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;
+* kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;
 
-kaip ši sutartis:
+* kaip ši sutartis:
+    - testuojama lokaliame blockchain’e naudojant Truffle;
+    - deploy’inama į viešą testnet (Sepolia) per Remix + MetaMask;
+    - naudojama realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);
+    - analizuojama per Etherscan logus ir internal transakcijas.
 
-*testuojama lokaliame blockchain’e naudojant Truffle;
+**Naudotos  technologijos**:
 
-*deploy’inama į viešą testnet (Sepolia) per Remix + MetaMask;
+* Solidity 0.8.20
 
-*naudojama realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);
+* Truffle v5 + vidinis „truffle develop“ tinklas
 
-*analizuojama per Etherscan logus ir internal transakcijas.
+* Remix IDE
 
-Naudotos technologijos:
+* MetaMask (Sepolia testnet)
 
-*Solidity 0.8.20
+* Etherscan (sepolia.etherscan.io)
 
-*Truffle v5 + vidinis „truffle develop“ tinklas
-
-*Remix IDE
-
-*MetaMask (Sepolia testnet)
-
-*Etherscan (sepolia.etherscan.io)
-
-*ethers.js 6.x front-end dalyje
+* ethers.js 6.x front-end dalyje
 
 _____________________________________
 
-2. Verslo scenarijus ir dalyviai
+# Verslo scenarijus ir dalyviai
 
 Sistema modeliuoja situaciją, kai prekė parduodama internetu ir pristatoma per kurjerį. Siekiama užtikrinti, kad nei pirkėjas, nei pardavėjas negalėtų „pasisavinti“ pinigų vienišališkai – naudomas escrow mechanizmas.
 
-Dalyviai:
+## Dalyviai:
 
-*Seller (pardavėjas)
+* Seller (pardavėjas)
 
 Sukuria kontraktą ir nustato:
 
-prekės kainą price, kurjerio mokestį courierFee.
+prekės kainą *price*, kurjerio mokestį *courierFee*.
 
-Pardavėjas nori gauti price tik tada, kai prekė tikrai pristatyta.
+Pardavėjas nori gauti *price* tik tada, kai prekė tikrai pristatyta.
 
-*Buyer (pirkėjas)
+* Buyer (pirkėjas)
+
 Per kontraktą sumoka iškart:
 
-price – už prekę, courierFee – kurjeriui.
+*price* – už prekę, *courierFee* – kurjeriui.
 
 Kol prekė nepristatyta ir pirkėjas to nepatvirtina, pinigai laikomi kontrakte.
 
-*Courier (kurjeris)
+* Courier (kurjeris)
 
 Pristato prekę ir tikisi gauti courierFee, kai pirkėjas patvirtins gavimą.
 
-##EscrowSale smart contract
+## EscrowSale smart contract
 
-Veikia kaip patikimas tarpininkas (escrow):
+Veikia kaip patikimas tarpininkas , nes:
 
-*laiko lėšas,
+* laiko lėšas,
 
-*saugo dalyvių adresus,
+* saugo dalyvių adresus,
 
-*tikrina būsenas ir leidžiamas operacijas,
+* tikrina būsenas ir leidžiamas operacijas,
 
-*galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
+* galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
 
-##Tipinis scenarijus:
+## Tipinis scenarijus:
 
-*Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
+* Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
 
-*Pirkėjas prisiregistruoja kaip buyer.
+* Pirkėjas prisiregistruoja kaip buyer.
 
-*Kurjeris prisiregistruoja kaip courier.
+* Kurjeris prisiregistruoja kaip courier.
 
-*Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
+* Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
 
-*Kurjeris pažymi, kad siunta išsiųsta (Shipped).
+* Kurjeris pažymi, kad siunta išsiųsta (Shipped).
 
-*Pirkėjas patvirtina, kad prekę gavo (Delivered).
+* Pirkėjas patvirtina, kad prekę gavo (Delivered).
 
-*Paspaudus complete():
-
-**kontraktas išmoka price pardavėjui;
-
-**išmoka courierFee kurjeriui;
-
-**būsena tampa Completed.
+* Paspaudus complete():
+    - kontraktas išmoka price pardavėjui;
+    - išmoka courierFee kurjeriui;
+    - būsena tampa Completed.
 
 _____________________________________
 
-3. Kontrakto architektūra (Solidity)
-3.1. Būsenų mašina
+# Kontrakto architektūra (Solidity)
+
+Būsenų mašina
 
 Naudojamas enum State, kuris apibrėžia visą kontrakto gyvenimo ciklą:
 
@@ -103,17 +98,17 @@ State public state;
 
 Būsenų reikšmės:
 
-*0 – Created – sukurtas, pirkėjas dar nemokėjo.
+* 0 – Created – sukurtas, pirkėjas dar nemokėjo.
 
-*1 – Funded – pirkėjas pervedė price + courierFee.
+* 1 – Funded – pirkėjas pervedė price + courierFee.
 
-*2 – Shipped – kurjeris pažymėjo išsiuntimą.
+* 2 – Shipped – kurjeris pažymėjo išsiuntimą.
 
-*3 – Delivered – pirkėjas patvirtino gavimą.
+* 3 – Delivered – pirkėjas patvirtino gavimą.
 
-*4 – Completed – atsiskaitymas įvykdytas.
+* 4 – Completed – atsiskaitymas įvykdytas.
 
-*5 – Cancelled – sandoris atšauktas.
+* 5 – Cancelled – sandoris atšauktas.
 
 Visos „kritinės“ funkcijos turi inState(State.XX) modifier, kuris neleidžia jų kviesti neteisingu metu.
 
