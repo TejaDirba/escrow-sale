@@ -249,6 +249,32 @@ Loginė seka tarp dalyvių:
 6. Buyer → EscrowSale: `confirmDelivered()` → **Delivered**
 7. Seller / Buyer → EscrowSale: `complete()` → **Completed**, išmokamos lėšos seller ir courier
 
+Dalyviai:
+
+*	Seller
+*	Buyer
+*	Courier
+*	EscrowSale (kontraktas)
+
+### Loginė seka:
+1.	Seller → EscrowSale: deploy(_price, _courierFee)
+    - Kontraktas sukuriamas, būsena Created.
+2.	Buyer → EscrowSale: registerBuyer()
+    - Išsaugomas pirkėjo adresas, patvirtinama, kad vėliau tik jis galės mokėti ir patvirtinti pristatymą.
+3.	Courier → EscrowSale: registerCourier()
+    - Išsaugomas kurjerio adresas.
+4.	Buyer → EscrowSale: fundPurchase(value = price + courierFee)
+    - Pinigai patenka į kontraktą, būsena → Funded.
+5.	Courier → EscrowSale: markShipped()
+    - Pažymima, kad siunta išsiųsta, būsena → Shipped.
+6.	Buyer → EscrowSale: confirmDelivered()
+    - Pirkėjas patvirtina, kad prekę gavo, būsena → Delivered.
+7.	Seller (arba Buyer) → EscrowSale: complete()
+    - Kontraktas:
+        - perveda price pardavėjui,
+        - perveda courierFee kurjeriui,
+        - nustato state = Completed. 
+
 ![alt text](image-3.png)
 
 ---
