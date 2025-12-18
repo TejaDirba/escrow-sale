@@ -239,17 +239,7 @@ Jei pažeidžiamos `require` sąlygos (pvz. pakartotinis `registerBuyer`), DApp 
 
 ## Sekų diagrama (verslo lygis)
 
-Loginė seka tarp dalyvių:
-
-1. Seller → EscrowSale: `deploy(_price, _courierFee)` → **Created**
-2. Buyer → EscrowSale: `registerBuyer()`
-3. Courier → EscrowSale: `registerCourier()`
-4. Buyer → EscrowSale: `fundPurchase(value = price + courierFee)` → **Funded**
-5. Courier → EscrowSale: `markShipped()` → **Shipped**
-6. Buyer → EscrowSale: `confirmDelivered()` → **Delivered**
-7. Seller / Buyer → EscrowSale: `complete()` → **Completed**, išmokamos lėšos seller ir courier
-
-Dalyviai:
+### Dalyviai:
 
 *	Seller
 *	Buyer
@@ -257,19 +247,19 @@ Dalyviai:
 *	EscrowSale (kontraktas)
 
 ### Loginė seka:
-1.	Seller → EscrowSale: deploy(_price, _courierFee)
+1.	Seller → EscrowSale: `deploy(_price, _courierFee)` → **Created**
     - Kontraktas sukuriamas, būsena Created.
-2.	Buyer → EscrowSale: registerBuyer()
+2.	Buyer → EscrowSale: `registerBuyer()`
     - Išsaugomas pirkėjo adresas, patvirtinama, kad vėliau tik jis galės mokėti ir patvirtinti pristatymą.
-3.	Courier → EscrowSale: registerCourier()
+3.	Courier → EscrowSale: `registerCourier()`
     - Išsaugomas kurjerio adresas.
-4.	Buyer → EscrowSale: fundPurchase(value = price + courierFee)
+4.	Buyer → EscrowSale: `fundPurchase(value = price + courierFee)` → **Funded**
     - Pinigai patenka į kontraktą, būsena → Funded.
-5.	Courier → EscrowSale: markShipped()
+5.	Courier → EscrowSale: `markShipped()` → **Shipped**
     - Pažymima, kad siunta išsiųsta, būsena → Shipped.
-6.	Buyer → EscrowSale: confirmDelivered()
+6.	Buyer → EscrowSale: `confirmDelivered()` → **Delivered**
     - Pirkėjas patvirtina, kad prekę gavo, būsena → Delivered.
-7.	Seller (arba Buyer) → EscrowSale: complete()
+7.	Seller (arba Buyer) → EscrowSale: `complete()` → **Completed**
     - Kontraktas:
         - perveda price pardavėjui,
         - perveda courierFee kurjeriui,
