@@ -24,7 +24,7 @@ Tikslas – pademonstruoti:
 
 ## Verslo scenarijus
 
-Sistema modeliuoja internetinį pardavimą su kurjerio pristatymu:
+Sistema modeliuoja internetinę prekybą (su kurjerio pristatymu):
 
 * **Seller**
   Deploy’ina kontraktą ir nustato:
@@ -61,89 +61,6 @@ Sistema modeliuoja internetinį pardavimą su kurjerio pristatymu:
 
 * `cancelBySeller()` iš **Created** → **Cancelled** (dar nėra lėšų).
 * `refundBuyer()` iš **Funded** → **Cancelled**, visas balansas grąžinamas buyer.
-
----
-
-## Kontrakto dizainas
-
-### Enum ir būsenų mašina
-
-```solidity
-enum State { Created, Funded, Shipped, Delivered, Completed, Cancelled }
-State public state;
-```
-
-Trumpai:
-
-* `Created` – kontraktas sukurtas, dar neapmokėta.
-* `Funded` – pirkėjas sumokėjo `price + courierFee`.
-* `Shipped` – kurjeris pažymėjo išsiuntimą.
-* `Delivered` – pirkėjas patvirtino gavimą.
-* `Completed` – lėšos išmokėtos.
-* `Cancelled` – sandoris nutrauktas.
-
-`enum` čia yra baigtinė būsenų aibė – kontraktas gali būti tik vienoje iš šių stadijų, o perėjimus griežtai kontroliuoja funkcijos + `require`.
-
-### Kintamieji ir konstruktorius
-
-```solidity
-address public seller;
-address public buyer;
-address public courier;
-
-uint256 public price;
-uint256 public courierFee;
-
-constructor(uint256 _price, uint256 _courierFee) {
-    seller = msg.sender;
-    price = _price;
-    courierFee = _courierFee;
-    state = State.Created;
-}
-```
-
-* `seller` – tas adresas, kuris deploy’ino kontraktą.
-* `price`, `courierFee` – nustatomi deploy metu (WEI).
-
-### Modifier’iai (prieigos kontrolė + būsena)
-
-```solidity
-modifier onlyBuyer()   { require(msg.sender == buyer,   "Not buyer");   _; }
-modifier onlySeller()  { require(msg.sender == seller,  "Not seller");  _; }
-modifier onlyCourier() { require(msg.sender == courier, "Not courier"); _; }
-
-modifier inState(State _state) {
-    require(state == _state, "Invalid state");
-    _;
-}
-```
-
-* **Access control** – kas gali kviesti:
-
-  * buyer: `fundPurchase`, `confirmDelivered`;
-  * courier: `markShipped`;
-  * seller: `cancelBySeller`, `refundBuyer`;
-  * seller arba buyer: `complete`.
-* **State validation** – kada gali kviesti:
-
-  * pvz. `markShipped` leidžiamas tik iš `Funded`,
-  * `complete` – tik iš `Delivered` ir t. t.
-
-### Pagrindinės funkcijos (santrauka)
-
-* `registerBuyer()` – nustato pirkėjo adresą, leidžiama tik kartą (`Buyer already set` apsauga).
-* `registerCourier()` – nustato kurjerio adresą, leidžiama tik kartą.
-* `fundPurchase()` – tik buyer, būsena `Created`, reikalauja `msg.value == price + courierFee`, keičia būseną į `Funded`.
-* `markShipped()` – tik courier, iš `Funded` → `Shipped`.
-* `confirmDelivered()` – tik buyer, iš `Shipped` → `Delivered`.
-* `complete()` – seller arba buyer, iš `Delivered`:
-
-  * keičia būseną į `Completed`;
-  * perveda `price` seller ir `courierFee` courier.
-* `cancelBySeller()` – tik seller, iš `Created` → `Cancelled`.
-* `refundBuyer()` – tik seller, iš `Funded` → `Cancelled`, grąžina visą `address(this).balance` buyer.
-
-Kontraktas taip pat emituoja event’us (pvz. `Funded`, `Shipped`, `Completed`), kurie matomi Etherscan `Logs` skiltyje.
 
 ---
 
@@ -268,12 +185,3 @@ Jei pažeidžiamos `require` sąlygos (pvz. pakartotinis `registerBuyer`), DApp 
 ![alt text](image-3.png)
 
 ---
-
-## Išvados ir galimi patobulinimai
-
-Padaryta:
-
-* sutartis, modeliuojanti realų escrow scenarijų su trimis rolėmis ir enum būsenų mašina;
-* lokaliai ištestuotas kontraktas (Truffle, automatiniai testai);
-* deploy į Sepolia ir patikrinimas per Etherscan;
-* veikiančios DApp prototipas su ethers.js ir MetaMask.
