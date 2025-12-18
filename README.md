@@ -249,7 +249,7 @@ Loginė seka tarp dalyvių:
 6. Buyer → EscrowSale: `confirmDelivered()` → **Delivered**
 7. Seller / Buyer → EscrowSale: `complete()` → **Completed**, išmokamos lėšos seller ir courier
 
-Diagramą galima rasti kaip paveikslėlį repo (pvz. `image.png`).
+![alt text](image-3.png)
 
 ---
 
@@ -261,10 +261,3 @@ Padaryta:
 * lokaliai ištestuotas kontraktas (Truffle, automatiniai testai);
 * deploy į Sepolia ir patikrinimas per Etherscan;
 * veikiančios DApp prototipas su ethers.js ir MetaMask.
-
-Galimi tolesni patobulinimai:
-
-* **timeout** / ginčų režimas, jei pirkėjas nepatvirtina pristatymo laiku;
-* papildoma rolė (arbitrator/admin) ginčų sprendimui;
-* kelių užsakymų palaikymas viename kontrakte (`orderId → struct`);
-* geresnis UI (istorijos sąrašas, event stream, statuso indikacija realiu laiku).
