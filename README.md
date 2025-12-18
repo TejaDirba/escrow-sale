@@ -40,7 +40,7 @@ o	laiko lėšas,
 o	saugo dalyvių adresus,  
 o	tikrina būsenas ir leidžiamas operacijas,  
 o	galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.  
-**Tipinis scenarijus**:  
+**Tipinis scenarijus**:   
 1.	Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).  
 2.	Pirkėjas prisiregistruoja kaip buyer.  
 3.	Kurjeris prisiregistruoja kaip courier.  
