@@ -1,21 +1,21 @@
 # escrow-sale
 
-Šiame darbe sukurta ir ištestuota išmanioji sutartis (smart contract) „EscrowSale“ bei paprasta decentralizuota aplikacija (DApp), veikianti Ethereum testiniame tinkle Sepolia.
-Pagrindinis tikslas – pademonstruoti:
-    kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;
-    kaip šis kontraktas:
-        testuojamas lokaliame blockchain’e naudojant Truffle;
-        deploy’inamas į viešą testnet (Sepolia) per Remix + MetaMask;
-        naudojamas realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);
-        analizuojamas per Etherscan logus ir internal transakcijas.
+Šiame darbe sukurta ir ištestuota išmanioji sutartis (smart contract) „EscrowSale“ bei paprasta decentralizuota aplikacija (DApp), veikianti Ethereum testiniame tinkle Sepolia.  
+Pagrindinis tikslas – pademonstruoti:  
+    kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;  
+    kaip šis kontraktas:  
+        testuojamas lokaliame blockchain’e naudojant Truffle;  
+        deploy’inamas į viešą testnet (Sepolia) per Remix + MetaMask;  
+        naudojamas realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);  
+        analizuojamas per Etherscan logus ir internal transakcijas.  
 
-Naudotos technologijos:
-    Solidity 0.8.20
-    Truffle v5 + vidinis „truffle develop“ tinklas
-    Remix IDE
-    MetaMask (Sepolia testnet)
-    Etherscan (sepolia.etherscan.io)
-    ethers.js 6.x front-end dalyje
+Naudotos technologijos:  
+    Solidity 0.8.20  
+    Truffle v5 + vidinis „truffle develop“ tinklas  
+    Remix IDE  
+    MetaMask (Sepolia testnet)  
+    Etherscan (sepolia.etherscan.io)  
+    ethers.js 6.x front-end dalyje  
 
 ________________________________________
 2. Verslo scenarijus ir dalyviai
