@@ -2,37 +2,33 @@
 
 Pagrindinis tikslas – pademonstruoti:
 
-kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;
+*kaip verslo scenarijus (prekių pardavimas su kurjerio pristatymu) perkeliamas į smart contract logiką;
 
-kaip šis kontraktas:
+kaip ši sutartis:
 
-testuojamas lokaliame blockchain’e naudojant Truffle;
+*testuojama lokaliame blockchain’e naudojant Truffle;
 
-deploy’inamas į viešą testnet (Sepolia) per Remix + MetaMask;
+*deploy’inama į viešą testnet (Sepolia) per Remix + MetaMask;
 
-naudojamas realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);
+*naudojama realiu laiku per web UI (ethers.js pagrindu su MetaMask integracija);
 
-analizuojamas per Etherscan logus ir internal transakcijas.
+*analizuojama per Etherscan logus ir internal transakcijas.
 
 Naudotos technologijos:
 
-Solidity 0.8.20
+*Solidity 0.8.20
 
-Truffle v5 + vidinis „truffle develop“ tinklas
+*Truffle v5 + vidinis „truffle develop“ tinklas
 
-Remix IDE
+*Remix IDE
 
-MetaMask (Sepolia testnet)
+*MetaMask (Sepolia testnet)
 
-Etherscan (sepolia.etherscan.io)
+*Etherscan (sepolia.etherscan.io)
 
-ethers.js 6.x front-end dalyje
+*ethers.js 6.x front-end dalyje
 
-Pagrindinis naudotojo adresas testnet’e:
-0x3D8BDf18C40f2B2d8e1057B9f38Bf6a4B2219555 (MetaMask wallet).
-
-Galutinis EscrowSale kontrakto adresas Sepolia tinkle (naudojamas DApp’e):
-0x627FED1407E15faF1D237e466d7603eB8bDC771.
+_____________________________________
 
 2. Verslo scenarijus ir dalyviai
 
@@ -40,63 +36,60 @@ Sistema modeliuoja situaciją, kai prekė parduodama internetu ir pristatoma per
 
 Dalyviai:
 
-Seller (pardavėjas)
+*Seller (pardavėjas)
+
 Sukuria kontraktą ir nustato:
 
-prekės kainą price,
+prekės kainą price, kurjerio mokestį courierFee.
 
-kurjerio mokestį courierFee.
 Pardavėjas nori gauti price tik tada, kai prekė tikrai pristatyta.
 
-Buyer (pirkėjas)
+*Buyer (pirkėjas)
 Per kontraktą sumoka iškart:
 
-price – už prekę,
+price – už prekę, courierFee – kurjeriui.
 
-courierFee – kurjeriui.
 Kol prekė nepristatyta ir pirkėjas to nepatvirtina, pinigai laikomi kontrakte.
 
-Courier (kurjeris)
+*Courier (kurjeris)
+
 Pristato prekę ir tikisi gauti courierFee, kai pirkėjas patvirtins gavimą.
 
-EscrowSale smart contract
+##EscrowSale smart contract
+
 Veikia kaip patikimas tarpininkas (escrow):
 
-laiko lėšas,
+*laiko lėšas,
 
-saugo dalyvių adresus,
+*saugo dalyvių adresus,
 
-tikrina būsenas ir leidžiamas operacijas,
+*tikrina būsenas ir leidžiamas operacijas,
 
-galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
+*galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
 
-Tipinis scenarijus:
+##Tipinis scenarijus:
 
-Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
+*Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
 
-Pirkėjas prisiregistruoja kaip buyer.
+*Pirkėjas prisiregistruoja kaip buyer.
 
-Kurjeris prisiregistruoja kaip courier.
+*Kurjeris prisiregistruoja kaip courier.
 
-Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
+*Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
 
-Kurjeris pažymi, kad siunta išsiųsta (Shipped).
+*Kurjeris pažymi, kad siunta išsiųsta (Shipped).
 
-Pirkėjas patvirtina, kad prekę gavo (Delivered).
+*Pirkėjas patvirtina, kad prekę gavo (Delivered).
 
-Paspaudus complete():
+*Paspaudus complete():
 
-kontraktas išmoka price pardavėjui;
+**kontraktas išmoka price pardavėjui;
 
-išmoka courierFee kurjeriui;
+**išmoka courierFee kurjeriui;
 
-būsena tampa Completed.
+**būsena tampa Completed.
 
-Alternatyvūs scenarijai:
-
-Pardavėjas gali atšaukti sandorį prieš apmokėjimą (cancelBySeller), būsena Cancelled.
-
-Jei pirkėjas jau apmokėjo, pardavėjas gali grąžinti visą balansą pirkėjui (refundBuyer), būsena Cancelled.
+_____________________________________
 
 3. Kontrakto architektūra (Solidity)
 3.1. Būsenų mašina
@@ -104,22 +97,23 @@ Jei pirkėjas jau apmokėjo, pardavėjas gali grąžinti visą balansą pirkėju
 Naudojamas enum State, kuris apibrėžia visą kontrakto gyvenimo ciklą:
 
 enum State { Created, Funded, Shipped, Delivered, Completed, Cancelled }
+
 State public state;
 
 
 Būsenų reikšmės:
 
-0 – Created – sukurtas, pirkėjas dar nemokėjo.
+*0 – Created – sukurtas, pirkėjas dar nemokėjo.
 
-1 – Funded – pirkėjas pervedė price + courierFee.
+*1 – Funded – pirkėjas pervedė price + courierFee.
 
-2 – Shipped – kurjeris pažymėjo išsiuntimą.
+*2 – Shipped – kurjeris pažymėjo išsiuntimą.
 
-3 – Delivered – pirkėjas patvirtino gavimą.
+*3 – Delivered – pirkėjas patvirtino gavimą.
 
-4 – Completed – atsiskaitymas įvykdytas.
+*4 – Completed – atsiskaitymas įvykdytas.
 
-5 – Cancelled – sandoris atšauktas.
+*5 – Cancelled – sandoris atšauktas.
 
 Visos „kritinės“ funkcijos turi inState(State.XX) modifier, kuris neleidžia jų kviesti neteisingu metu.
 
@@ -318,17 +312,25 @@ Truffle develop sukuria 10 lokalių paskyrų ir privates raktus, kontraktas įdi
 Truffle konsolėje:
 
 const instance = await EscrowSale.deployed()
+
 const accounts = await web3.eth.getAccounts()
 
 // 0 - Created
+
 await instance.registerBuyer({ from: accounts[1] })
+
 await instance.registerCourier({ from: accounts[2] })
+
 await instance.fundPurchase({ from: accounts[1], value: 1100 })
+
 await instance.markShipped({ from: accounts[2] })
+
 await instance.confirmDelivered({ from: accounts[1] })
+
 await instance.complete({ from: accounts[0] })
 
 // turi grąžinti 4 (Completed)
+
 (await instance.state()).toString()
 
 
