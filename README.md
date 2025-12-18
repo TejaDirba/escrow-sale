@@ -52,33 +52,33 @@ Kol prekė nepristatyta ir pirkėjas to nepatvirtina, pinigai laikomi kontrakte.
 
 Pristato prekę ir tikisi gauti courierFee, kai pirkėjas patvirtins gavimą.
 
-## EscrowSale smart contract
+*  EscrowSale smart contract
 
 Veikia kaip patikimas tarpininkas , nes:
 
-* laiko lėšas,
+- laiko lėšas,
 
-* saugo dalyvių adresus,
+- saugo dalyvių adresus,
 
-* tikrina būsenas ir leidžiamas operacijas,
+- tikrina būsenas ir leidžiamas operacijas,
 
-* galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
+- galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
 
 ## Tipinis scenarijus:
 
-* Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
+1. Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
 
-* Pirkėjas prisiregistruoja kaip buyer.
+2. Pirkėjas prisiregistruoja kaip buyer.
 
-* Kurjeris prisiregistruoja kaip courier.
+3. Kurjeris prisiregistruoja kaip courier.
 
-* Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
+4. Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
 
-* Kurjeris pažymi, kad siunta išsiųsta (Shipped).
+5. Kurjeris pažymi, kad siunta išsiųsta (Shipped).
 
-* Pirkėjas patvirtina, kad prekę gavo (Delivered).
+6. Pirkėjas patvirtina, kad prekę gavo (Delivered).
 
-* Paspaudus complete():
+7. Paspaudus complete():
     - kontraktas išmoka price pardavėjui;
     - išmoka courierFee kurjeriui;
     - būsena tampa Completed.
@@ -87,14 +87,14 @@ _____________________________________
 
 # Kontrakto architektūra (Solidity)
 
-Būsenų mašina
+## Būsenų mašina
 
-Naudojamas enum State, kuris apibrėžia visą kontrakto gyvenimo ciklą:
+Naudojamas *enum State*, kuris apibrėžia visą kontrakto gyvenimo ciklą:
 
+'''
 enum State { Created, Funded, Shipped, Delivered, Completed, Cancelled }
-
 State public state;
-
+'''
 
 Būsenų reikšmės:
 
@@ -112,36 +112,38 @@ Būsenų reikšmės:
 
 Visos „kritinės“ funkcijos turi inState(State.XX) modifier, kuris neleidžia jų kviesti neteisingu metu.
 
-3.2. Dalyvių adresai ir sumos
+## Dalyvių adresai ir sumos
 
 Kontrakte saugoma:
 
+'''
 address public seller;
 address public buyer;
 address public courier;
 
 uint256 public price;
 uint256 public courierFee;
-
+'''
 
 Konstruktorius:
 
+'''
 constructor(uint256 _price, uint256 _courierFee) {
     seller = msg.sender;
     price = _price;
     courierFee = _courierFee;
     state = State.Created;
 }
+'''
+* *seller* – tas, kas deploy’ina kontraktą (MetaMask account, su kuriuo buvo darytas deploy).
 
+* Sumos *_price* ir *_courierFee* yra iškart nustatomos deploy metu (WEI vienetais).
 
-seller – tas, kas deploy’ina kontraktą (MetaMask account, su kuriuo buvo darytas deploy).
-
-Sumos _price ir _courierFee yra iškart nustatomos deploy metu (WEI vienetais).
-
-3.3. Modifier’iai ir saugumas
+## Modifier’iai ir saugumas
 
 Pagrindiniai modifier’iai:
 
+'''
 modifier onlyBuyer() {
     require(msg.sender == buyer, "Not buyer");
     _;
@@ -161,119 +163,121 @@ modifier inState(State _state) {
     require(state == _state, "Invalid state");
     _;
 }
-
+'''
 
 Faktinė prasmė:
 
-Access control:
+* Access control:
+    - tik buyer gali kviesti fundPurchase ir confirmDelivered;
+    - tik courier – markShipped;
+    - tik seller – cancelBySeller ir refundBuyer;
+    - complete gali kviesti pirkėjas arba pardavėjas (kaip aprašyta kontrakte).
 
-tik buyer gali kviesti fundPurchase ir confirmDelivered;
+* State validation:
+    - neleidžia, pvz., markShipped prieš apmokėjimą, nes reikalinga būsena Funded;
+    - neleidžia pakartotinai keisti pirkėjo (buyer already set).
 
-tik courier – markShipped;
-
-tik seller – cancelBySeller ir refundBuyer;
-
-complete gali kviesti pirkėjas arba pardavėjas (kaip aprašyta kontrakte).
-
-State validation:
-
-neleidžia, pvz., markShipped prieš apmokėjimą, nes reikalinga būsena Funded;
-
-neleidžia pakartotinai keisti pirkėjo (buyer already set).
-
-3.4. Pagrindinės funkcijos
+## Pagrindinės funkcijos
 
 Santrauka:
 
-registerBuyer()
+***registerBuyer()***
+
 Leidžia vieną kartą nustatyti pirkėjo adresą:
 
-require(buyer == address(0), "Buyer already set");
+* require(buyer == address(0), "Buyer already set");
+* buyer = payable(msg.sender);
 
-buyer = payable(msg.sender);
+***registerCourier()***
 
-registerCourier()
 Nustato kurjerio adresą:
 
-require(courier == address(0), "Courier already set");
+* require(courier == address(0), "Courier already set");
+* courier = payable(msg.sender);
 
-courier = payable(msg.sender);
+***fundPurchase()***
 
-fundPurchase()
 Kvietėjas – tik buyer.
+
 Reikalauja: msg.value == price + courierFee ir būsena Created.
+
 Sėkmės atveju:
 
-lėšos (price + courierFee) patenka į kontraktą,
+* lėšos (price + courierFee) patenka į kontraktą,
+* būsena → Funded.
 
-būsena → Funded.
+***markShipped()***
 
-markShipped()
 Tik courier, būsena turi būti Funded.
+
 Sėkmės atveju: būsena → Shipped.
 
-confirmDelivered()
+***confirmDelivered()***
+
 Tik buyer, būsena turi būti Shipped.
+
 Sėkmės atveju: būsena → Delivered.
 
-complete()
+***complete()***
+
 Leidžiama kvietėjui (seller arba buyer) esant Delivered.
+
 Viduje:
 
-būsena → Completed,
+* būsena → Completed,
 
-apskaičiuojamos sumos sellerAmount = price, courierAmount = courierFee,
+* apskaičiuojamos sumos sellerAmount = price, courierAmount = courierFee,
 
-atliekami du pervedimai:
+* atliekami du pervedimai:
 
+'''
 (bool okSeller, ) = seller.call{value: sellerAmount}("");
 ...
 (bool okCourier, ) = courier.call{value: courierAmount}("");
+'''
 
+***cancelBySeller()***
 
-cancelBySeller()
 Tik seller, būsena turi būti Created.
+
 Nustato state = Cancelled. Lėšų dar nėra, todėl papildomų veiksmų nereikia.
 
-refundBuyer()
+***refundBuyer()***
+
 Tik seller, būsena Funded.
+
 Nustato state = Cancelled ir grąžina visą kontrakto balansą pirkėjui:
 
+'
 (bool ok, ) = buyer.call{value: address(this).balance}("");
+'
 
-3.5. Event’ai
+## Event’ai
 
 Kontraktas emituoja event’us (pvz. Funded, Shipped, Completed), kurie:
 
-matomi Etherscan → Logs skiltyje;
+* matomi Etherscan → Logs skiltyje;
 
-gali būti naudojami DApp’e realaus laiko atnaujinimams (šioje versijoje tik stebimi per Etherscan).
+* gali būti naudojami DApp’e realaus laiko atnaujinimams (šioje versijoje tik stebimi per Etherscan).
 
-4. Truffle: lokali blockchain aplinka ir testai
-4.1. Projekto inicializavimas
+________________________________________________
+
+# Truffle: lokali blockchain aplinka ir testai
+## Projekto inicializavimas
 
 Sukurtas atskiras Truffle projektas (escrow-truffle):
 
-truffle init
-
-contracts/:
-
-EscrowSale.sol
-
-Migrations.sol
-
-migrations/:
-
-1_initial_migration.js
-
-2_deploy_escrow.js
-
-test/:
-
-escrow.test.js
-
-truffle-config.js su:
-
+* truffle init
+* contracts/:
+    - EscrowSale.sol
+    - Migrations.sol
+* migrations/:
+    - 1_initial_migration.js
+    - 2_deploy_escrow.js
+* test/:
+    - escrow.test.js
+* truffle-config.js su:
+'''
 networks: {
   development: {
     host: "127.0.0.1",
@@ -284,13 +288,12 @@ networks: {
 compilers: {
   solc: { version: "0.8.20" },
 }
-
-
+'''
 2_deploy_escrow.js deploy’ina kontraktą su paprastomis WEI reikšmėmis:
-
+'''
 const price = 1000;
 const courierFee = 100;
-
+'''
 4.2. Lokalus tinklas
 
 Paleista:
