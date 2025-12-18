@@ -18,42 +18,42 @@ Naudotos technologijos:
     ethers.js 6.x front-end dalyje  
 
 ________________________________________
-2. Verslo scenarijus ir dalyviai
+2. Verslo scenarijus ir dalyviai  
    
-Sistema modeliuoja situaciją, kai prekė parduodama internetu ir pristatoma per kurjerį. Siekiama užtikrinti, kad nei pirkėjas, nei pardavėjas negalėtų „pasisavinti“ pinigų vienišališkai – naudomas escrow mechanizmas.
-Dalyviai:
-•	Seller (pardavėjas)
-Sukuria kontraktą ir nustato:
-o	prekės kainą price,
-o	kurjerio mokestį courierFee.
-Pardavėjas nori gauti price tik tada, kai prekė tikrai pristatyta.
-•	Buyer (pirkėjas)
-Per kontraktą sumoka iškart:
-o	price – už prekę,
-o	courierFee – kurjeriui.
-Kol prekė nepristatyta ir pirkėjas to nepatvirtina, pinigai laikomi kontrakte.
-•	Courier (kurjeris)
-Pristato prekę ir tikisi gauti courierFee, kai pirkėjas patvirtins gavimą.
-•	EscrowSale smart contract
-Veikia kaip patikimas tarpininkas (escrow):
-o	laiko lėšas,
-o	saugo dalyvių adresus,
-o	tikrina būsenas ir leidžiamas operacijas,
-o	galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.
-Tipinis scenarijus:
-1.	Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).
-2.	Pirkėjas prisiregistruoja kaip buyer.
-3.	Kurjeris prisiregistruoja kaip courier.
-4.	Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).
-5.	Kurjeris pažymi, kad siunta išsiųsta (Shipped).
-6.	Pirkėjas patvirtina, kad prekę gavo (Delivered).
-7.	Paspaudus complete():
-o	kontraktas išmoka price pardavėjui;
-o	išmoka courierFee kurjeriui;
-o	būsena tampa Completed.
-Alternatyvūs scenarijai:
-•	Pardavėjas gali atšaukti sandorį prieš apmokėjimą (cancelBySeller), būsena Cancelled.
-•	Jei pirkėjas jau apmokėjo, pardavėjas gali grąžinti visą balansą pirkėjui (refundBuyer), būsena Cancelled.
+Sistema modeliuoja situaciją, kai prekė parduodama internetu ir pristatoma per kurjerį. Siekiama užtikrinti, kad nei pirkėjas, nei pardavėjas negalėtų „pasisavinti“ pinigų vienišališkai – naudomas escrow mechanizmas.  
+**Dalyviai**:  
+•	Seller (pardavėjas)  
+Sukuria kontraktą ir nustato:  
+o	prekės kainą price,  
+o	kurjerio mokestį courierFee.  
+Pardavėjas nori gauti price tik tada, kai prekė tikrai pristatyta.  
+•	Buyer (pirkėjas)  
+Per kontraktą sumoka iškart:  
+o	price – už prekę,  
+o	courierFee – kurjeriui.  
+Kol prekė nepristatyta ir pirkėjas to nepatvirtina, pinigai laikomi kontrakte.  
+•	Courier (kurjeris)  
+Pristato prekę ir tikisi gauti courierFee, kai pirkėjas patvirtins gavimą.  
+•	EscrowSale smart contract  
+Veikia kaip patikimas tarpininkas (escrow):  
+o	laiko lėšas,  
+o	saugo dalyvių adresus,  
+o	tikrina būsenas ir leidžiamas operacijas,  
+o	galutiniame žingsnyje automatiškai paskirsto lėšas pardavėjui ir kurjeriui.  
+**Tipinis scenarijus**:  
+1.	Pardavėjas deploy’ina kontraktą su price ir courierFee (būsena Created).  
+2.	Pirkėjas prisiregistruoja kaip buyer.  
+3.	Kurjeris prisiregistruoja kaip courier.  
+4.	Pirkėjas perveda price + courierFee į kontraktą (būsena Funded).  
+5.	Kurjeris pažymi, kad siunta išsiųsta (Shipped).  
+6.	Pirkėjas patvirtina, kad prekę gavo (Delivered).  
+7.	Paspaudus complete():  
+o	kontraktas išmoka price pardavėjui;  
+o	išmoka courierFee kurjeriui;  
+o	būsena tampa Completed.  
+**Alternatyvūs scenarijai**:  
+•	Pardavėjas gali atšaukti sandorį prieš apmokėjimą (cancelBySeller), būsena Cancelled.  
+•	Jei pirkėjas jau apmokėjo, pardavėjas gali grąžinti visą balansą pirkėjui (refundBuyer), būsena Cancelled.  
 ________________________________________
 3. Kontrakto architektūra (Solidity)
 3.1. Būsenų mašina
